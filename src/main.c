@@ -101,8 +101,8 @@ void render(struct image *image, struct scene *scene, struct camera *camera) {
       vector tmp, r_dir;
       color result;
 
-      dx = (float) tan(camera->fovx / 2.0) * (float) (x - half_w) / half_w;
-      dy = (float) tan(camera->fovy / 2.0) * (float) (half_h - y) / half_h;
+      dx = (float) tan(camera->fovx / 2.0) * ((float) x - half_w) / half_w;
+      dy = (float) tan(camera->fovy / 2.0) * (half_h - (float) y) / half_h;
       vector_set(tmp, dx, dy, 0.0);
       vector_add(r_dir, camera->eye.dir, tmp);
       vector_normalize(r_dir);

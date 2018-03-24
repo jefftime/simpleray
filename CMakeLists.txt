@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.9.0 FATAL_ERROR)
 project(simpleray VERSION 0.1.0 LANGUAGES C)
 add_executable(simpleray
   "src/camera.c"

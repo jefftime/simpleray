@@ -47,15 +47,15 @@ void image_write_ppm(struct image *image, char *filepath) {
 }
 
 #define write4le(buf, n) { \
-  (buf)[3] = (unsigned char) ((n & 0xff000000) >> 24);	\
-  (buf)[2] = (unsigned char) ((n & 0x00ff0000) >> 16);	\
-  (buf)[1] = (unsigned char) ((n & 0x0000ff00) >> 8);	\
-  (buf)[0] = (unsigned char) (n & 0x000000ff);		\
+  (buf)[3] = (unsigned char) (((n) & 0xff000000) >> 24);	\
+  (buf)[2] = (unsigned char) (((n) & 0x00ff0000) >> 16);	\
+  (buf)[1] = (unsigned char) (((n) & 0x0000ff00) >> 8);	\
+  (buf)[0] = (unsigned char) ((n) & 0x000000ff);		\
   }
 
 #define write2le(buf, n) { \
-  (buf)[1] = (unsigned char) ((n & 0xff00) >> 8); \
-  (buf)[0] = (unsigned char) (n & 0x00ff); \
+  (buf)[1] = (unsigned char) (((n) & 0xff00) >> 8); \
+  (buf)[0] = (unsigned char) ((n) & 0x00ff); \
   }
 
 void image_write_bmp(struct image *image, char *filepath) {
@@ -77,8 +77,6 @@ void image_write_bmp(struct image *image, char *filepath) {
   row_size = ((bpp * image->width + 31) / 32) * 4;
   image_size = row_size * image->height * 3;
   data = malloc(image_size);
-  printf("image_size: %lu\n", image_size);
-  printf("row_size: %lu\n", row_size);
   if (!data) {
     puts("could not allocate memory for bmp");
     return;
