@@ -113,22 +113,27 @@ void render(struct image *image, struct scene *scene, struct camera *camera) {
   }
 }
 
-int main(int argc, char **argv) {
-  float fovx, fovy;
-  struct image image;
-  struct scene scene;
-  struct camera camera;
+void setup_camera(struct camera *out_camera) {
+  float fovy, fovx;
   struct ray camera_eye;
   vector camera_pos, camera_dir;
 
-  image_init(&image, WIDTH, HEIGHT);
-  scene_init(&scene);
   vector_set(camera_pos, 0, 0, 0);
   vector_set(camera_dir, 0, 0, -1);
   ray_init(&camera_eye, camera_pos, camera_dir);
   fovx = 60.0;
   fovy = (float) HEIGHT * fovx / (float) WIDTH;
-  camera_init(&camera, &camera_eye, to_rads(fovx), to_rads(fovy));
+  camera_init(out_camera, &camera_eye, to_rads(fovx), to_rads(fovy));
+}
+
+int main(int argc, char **argv) {
+  struct image image;
+  struct scene scene;
+  struct camera camera;
+
+  image_init(&image, WIDTH, HEIGHT);
+  scene_init(&scene);
+  setup_camera(&camera);
   initialize_scene(&scene);
   render(&image, &scene, &camera);
   image_write_bmp(&image, "something.bmp");
