@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
   camera_init(&camera, &camera_eye, to_rads(fovx), to_rads(fovy));
   initialize_scene(&scene);
   render(&image, &scene, &camera);
-  image_write_ppm(&image, "something.ppm");
+  image_write_bmp(&image, "something.bmp");
   image_deinit(&image);
   scene_deinit(&scene);
   ray_deinit(&ray);

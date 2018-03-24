@@ -15,6 +15,7 @@ void image_set(struct image *image,
                unsigned char r,
                unsigned char g,
                unsigned char b);
-void image_write_ppm(struct image *image, char *filename);
+void image_write_ppm(struct image *image, char *filepath);
+void image_write_bmp(struct image *image, char *filepath);
 
 #endif
