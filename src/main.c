@@ -3,6 +3,7 @@
 #include "math.h"
 #include "scene.h"
 #include "vector.h"
+#include <darray/darray.h>
 #include <stdio.h>
 #include <math.h>
 
@@ -13,16 +14,21 @@ typedef unsigned char color[3];
 
 void initialize_scene(struct scene *scene) {
   struct sphere tmp;
+  struct ray light;
 
-  vector_set(tmp.pos, 0.0, 0.0, -10.0);
-  tmp.radius = 1.0;
-  scene_add(scene, &tmp);
-  vector_set(tmp.pos, 3.0, 0.0, -10.0);
-  tmp.radius = 1.0;
-  scene_add(scene, &tmp);
-  vector_set(tmp.pos, -3.0, 0.0, -10.0);
-  tmp.radius = 1.0;
-  scene_add(scene, &tmp);
+  vector_set(tmp.pos, 0, 0, -10);
+  tmp.radius = 1;
+  dapush(scene->spheres, tmp);
+  vector_set(tmp.pos, 3, 0, -10);
+  tmp.radius = 1;
+  dapush(scene->spheres, tmp);
+  vector_set(tmp.pos, -3, 0, -10);
+  tmp.radius = 1;
+  dapush(scene->spheres, tmp);
+  vector_set(light.pos, 0, 0, 0);
+  vector_set(light.dir, -1, 0, 0);
+  vector_normalize(light.dir);
+  dapush(scene->lights, light);
 }
 
 void trace(struct ray *r,
@@ -34,7 +40,7 @@ void trace(struct ray *r,
   result[0] = 128;
   result[1] = 128;
   result[2] = 128;
-  for (i = 0; i < scene->n_spheres; ++i) {
+  for (i = 0; i < dalen(scene->spheres); ++i) {
     float hit;
 
     if (sphere_ray_intersect(&scene->spheres[i], r, &hit)) {
@@ -43,7 +49,7 @@ void trace(struct ray *r,
       result[0] = 0;
       result[1] = 255;
       result[2] = 0;
-      for (j = 0; j < scene->n_lights; ++j) {
+      for (j = 0; j < dalen(scene->lights); ++j) {
         unsigned int k;
         struct ray second;
         vector second_pos, second_dir, outward, delta;
@@ -70,9 +76,10 @@ void trace(struct ray *r,
                    second.pos[0] + delta[0],
                    second.pos[1] + delta[1],
                    second.pos[2] + delta[2]);
-        for (k = 0; k < scene->n_spheres; ++k) {
+        for (k = 0; k < dalen(scene->spheres); ++k) {
           float shadow_hit;
-          if (sphere_ray_intersect(&scene->spheres[k], r, &shadow_hit)) {
+
+          if (sphere_ray_intersect(&scene->spheres[i], &second, &shadow_hit)) {
             result[0] = 0;
             result[1] = 0;
             result[2] = 0;
