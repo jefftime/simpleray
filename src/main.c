@@ -16,19 +16,19 @@ void initialize_scene(struct scene *scene) {
   struct sphere tmp;
   struct ray light;
 
-  vector_set(tmp.pos, 0, 0, -10);
-  tmp.radius = 1;
-  dapush(scene->spheres, tmp);
-  vector_set(tmp.pos, 3, 0, -10);
-  tmp.radius = 1;
-  dapush(scene->spheres, tmp);
-  vector_set(tmp.pos, -3, 0, -10);
-  tmp.radius = 1;
-  dapush(scene->spheres, tmp);
-  vector_set(light.pos, 0, 0, 0);
-  vector_set(light.dir, -1, -1, 0);
-  vector_normalize(light.dir, light.dir);
-  dapush(scene->lights, light);
+  dapush(scene->spheres, (vector_set(tmp.pos, 0, 0, -10),
+                          tmp.radius = 1.0f,
+                          tmp));
+  dapush(scene->spheres, (vector_set(tmp.pos, 3, 0, -10),
+                          tmp.radius = 1.0f,
+                          tmp));
+  dapush(scene->spheres, (vector_set(tmp.pos, -3, 0, -10),
+                          tmp.radius = 1.0f,
+                          tmp));
+  dapush(scene->lights, (vector_set(light.pos, 0, 0, 0),
+                         vector_set(light.dir, -1, -1, -1),
+                         vector_normalize(light.dir, light.dir),
+                         light));
 }
 
 void trace(struct ray *r,
@@ -82,6 +82,7 @@ void trace(struct ray *r,
           }
         }
       }
+      break;
     }
   }
 }
