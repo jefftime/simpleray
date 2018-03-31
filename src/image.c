@@ -88,7 +88,7 @@ void image_write_bmp(struct image *image, char *filepath) {
     unsigned char *row = data + (y * row_size);
 
     memcpy(row,
-           image->data + (y * image->width * 3),
+           image->data + ((image->height - y) * image->width * 3),
            image->width * 3);
   }
   header[0] = 'B';

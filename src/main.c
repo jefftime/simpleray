@@ -26,8 +26,8 @@ void initialize_scene(struct scene *scene) {
   tmp.radius = 1;
   dapush(scene->spheres, tmp);
   vector_set(light.pos, 0, 0, 0);
-  vector_set(light.dir, -1, 0, 0);
-  vector_normalize(light.dir);
+  vector_set(light.dir, -1, -1, 0);
+  vector_normalize(light.dir, light.dir);
   dapush(scene->lights, light);
 }
 
@@ -55,27 +55,15 @@ void trace(struct ray *r,
         vector second_pos, second_dir, outward, delta;
 
         vector_set(second_pos,
-                   r->pos[0] + (r->dir[0] * hit),
-                   r->pos[1] + (r->dir[1] * hit),
-                   r->pos[2] + (r->dir[2] * hit));
-        vector_set(second_dir,
-                   -scene->lights[j].dir[0],
-                   -scene->lights[j].dir[1],
-                   -scene->lights[j].dir[2]);
+                   r->pos[0] + (hit * r->dir[0]),
+                   r->pos[1] + (hit * r->dir[1]),
+                   r->pos[2] + (hit * r->dir[2]));
+        vector_negate(second_dir, scene->lights[j].dir);
         ray_init(&second, second_pos, second_dir);
-        vector_set(outward,
-                   second.pos[0] - scene->spheres[i].pos[0],
-                   second.pos[1] - scene->spheres[i].pos[1],
-                   second.pos[2] - scene->spheres[i].pos[2]);
-        vector_normalize(outward);
-        vector_set(delta,
-                   outward[0] * 0.001f,
-                   outward[1] * 0.001f,
-                   outward[2] * 0.001f);
-        vector_set(second.pos,
-                   second.pos[0] + delta[0],
-                   second.pos[1] + delta[1],
-                   second.pos[2] + delta[2]);
+        vector_sub(outward, second.pos, scene->spheres[i].pos);
+        vector_normalize(outward, outward);
+        vector_mulf(delta, 0.001f, outward);
+        vector_add(second.pos, second.pos, delta);
         for (k = 0; k < dalen(scene->spheres); ++k) {
           float shadow_hit;
 
@@ -84,9 +72,13 @@ void trace(struct ray *r,
             result[1] = 0;
             result[2] = 0;
           } else {
-            result[0] = 255;
-            result[1] = 255;
-            result[2] = 255;
+            float light_value;
+
+            vector_normalize(outward, outward);
+            light_value = (float) fabs(vector_dot(outward, second.dir));
+            result[0] = (unsigned char) (255.0f * light_value);
+            result[1] = (unsigned char) (255.0f * light_value);
+            result[2] = (unsigned char) (255.0f * light_value);
           }
         }
       }
@@ -112,7 +104,7 @@ void render(struct image *image, struct scene *scene, struct camera *camera) {
       dy = (float) tan(camera->fovy / 2.0) * (half_h - (float) y) / half_h;
       vector_set(tmp, dx, dy, 0.0);
       vector_add(r_dir, camera->eye.dir, tmp);
-      vector_normalize(r_dir);
+      vector_normalize(r_dir, r_dir);
       ray_init(&r, camera->eye.pos, r_dir);
       trace(&r, scene, camera, result);
       image_set(image, x, y, result[0], result[1], result[2]);
