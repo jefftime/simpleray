@@ -40,6 +40,6 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     PRIVATE _CRT_SECURE_NO_WARNINGS
     )
   target_compile_options(simpleray
-    PRIVATE /MTd
+    PRIVATE "/MT"
     )
 endif()
