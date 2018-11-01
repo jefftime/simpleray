@@ -18,12 +18,21 @@ void initialize_scene(struct scene *scene) {
 
   dapush(scene->spheres, (vector_set(tmp.pos, 0, 0, -10),
                           tmp.radius = 1.0f,
+                          tmp.color[0] = 255,
+                          tmp.color[1] = 0,
+                          tmp.color[2] = 0,
                           tmp));
   dapush(scene->spheres, (vector_set(tmp.pos, 3, 0, -10),
                           tmp.radius = 1.0f,
+                          tmp.color[0] = 255,
+                          tmp.color[1] = 255,
+                          tmp.color[2] = 255,
                           tmp));
   dapush(scene->spheres, (vector_set(tmp.pos, -3, 0, -10),
                           tmp.radius = 1.0f,
+                          tmp.color[0] = 255,
+                          tmp.color[1] = 255,
+                          tmp.color[2] = 255,
                           tmp));
   dapush(scene->lights, (vector_set(light.pos, 0, 0, 0),
                          vector_set(light.dir, -1, -1, -1),
@@ -34,7 +43,8 @@ void initialize_scene(struct scene *scene) {
 void trace(struct ray *r,
            struct scene *scene,
            struct camera *camera,
-           color result) {
+           color result,
+           unsigned int depth) {
   unsigned int i;
 
   result[0] = 128;
@@ -46,9 +56,6 @@ void trace(struct ray *r,
     if (sphere_ray_intersect(&scene->spheres[i], r, &hit)) {
       unsigned int j;
 
-      result[0] = 0;
-      result[1] = 255;
-      result[2] = 0;
       for (j = 0; j < dalen(scene->lights); ++j) {
         unsigned int k;
         struct ray second;
@@ -76,9 +83,9 @@ void trace(struct ray *r,
 
             vector_normalize(outward, outward);
             light_value = (float) fabs(vector_dot(outward, second.dir));
-            result[0] = (unsigned char) (255.0f * light_value);
-            result[1] = (unsigned char) (255.0f * light_value);
-            result[2] = (unsigned char) (255.0f * light_value);
+            result[0] = (unsigned char) ((float) scene->spheres[i].color[0] * light_value);
+            result[1] = (unsigned char) ((float) scene->spheres[i].color[1] * light_value);
+            result[2] = (unsigned char) ((float) scene->spheres[i].color[2] * light_value);
           }
         }
       }
@@ -87,7 +94,10 @@ void trace(struct ray *r,
   }
 }
 
-void render(struct image *image, struct scene *scene, struct camera *camera) {
+void render(struct image *image,
+            struct scene *scene,
+            struct camera *camera,
+            unsigned int depth) {
   unsigned int y;
 
   for (y = 0; y < HEIGHT; ++y) {
@@ -107,7 +117,7 @@ void render(struct image *image, struct scene *scene, struct camera *camera) {
       vector_add(r_dir, camera->eye.dir, tmp);
       vector_normalize(r_dir, r_dir);
       ray_init(&r, camera->eye.pos, r_dir);
-      trace(&r, scene, camera, result);
+      trace(&r, scene, camera, result, depth);
       image_set(image, x, y, result[0], result[1], result[2]);
     }
   }
@@ -127,6 +137,8 @@ void setup_camera(struct camera *out_camera) {
 }
 
 int main(int argc, char **argv) {
+#define MAX_BOUNCE 10
+
   struct image image;
   struct scene scene;
   struct camera camera;
@@ -135,11 +147,13 @@ int main(int argc, char **argv) {
   scene_init(&scene);
   setup_camera(&camera);
   initialize_scene(&scene);
-  render(&image, &scene, &camera);
-  image_write_bmp(&image, "something.bmp");
+  render(&image, &scene, &camera, MAX_BOUNCE);
+  image_write_bmp(&image, "result.bmp");
   image_deinit(&image);
   scene_deinit(&scene);
   ray_deinit(&ray);
   camera_deinit(&camera);
   return 0;
+
+#undef MAX_BOUNCE
 }

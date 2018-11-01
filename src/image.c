@@ -27,9 +27,9 @@ void image_set(struct image *image,
   if (y >= image->height) return;
   index = (y * image->width + x) * 3;
   if (!image) return;
-  image->data[index + 0] = r;
+  image->data[index + 0] = b;
   image->data[index + 1] = g;
-  image->data[index + 2] = b;
+  image->data[index + 2] = r;
 }
 
 void image_write_ppm(struct image *image, char *filepath) {
